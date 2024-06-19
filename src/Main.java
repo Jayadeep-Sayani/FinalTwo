@@ -268,87 +268,79 @@ public class Main {
             }
         }
 	}
-//	
-//	public void giveAvailableCourses(ArrayList<Course> requestedCourses, Person student, int currBlock, ArrayList<ArrayList<CourseSection>> globalTimetable, ArrayList<CourseSection> availableClasses) {
-//		
-//		for (Course requestedCourse : requestedCourses) {
-//			boolean blockFound = false;
-//			
-//			for (int i = 0; i < 9; i++) {
-//				if (student.getTimetable().get(i).size() > 0) {
-//					continue;
-//				}
-//				for (int j = 0; j < globalTimetable.get(i).size(); j++) {
-//
-//					if (globalTimetable.get(i).get(j).getCourses().contains(requestedCourse)) {
-//						if (!availableClasses.contains(globalTimetable.get(i).get(j))) {
-//							continue;
-//						}
-//						
-//						if (globalTimetable.get(i).get(j).getStudentList().size() + 1 <= globalTimetable.get(i).get(j).getMaxEnrollment()) {
-//							globalTimetable.get(i).get(j).getStudentList().add(student);
-//							student.getTimetable().get(i).add(globalTimetable.get(i).get(j));
-//							blockFound = true;
-//							break;
-//						}
-//						else {
-//							availableClasses.remove(globalTimetable.get(i).get(j));
-//						}
-//					}
-//				}
-//				
-//				if (blockFound) {
-//					break;
-//				}
-//			}
-//			
-//			if (!blockFound) {
-//				for ()
-//			}
-//		}
-//	}
+	
+	public int giveAvailableCourses(ArrayList<Course> requestedCourses, Person student, int currBlock, ArrayList<ArrayList<CourseSection>> globalTimetable, ArrayList<CourseSection> availableClasses, ArrayList<ArrayList<Course>> blockings) {
+		
+		for (Course requestedCourse : requestedCourses) {
+			boolean blockFound = false;
+			
+			for (int i = 0; i < 9; i++) {
+				if (student.getTimetable().get(i).size() > 0) {
+					continue;
+				}
+				for (int j = 0; j < globalTimetable.get(i).size(); j++) {
 
-//
-//                for blockWithLowestCourses in getLeastBlocks():
-//                    if len(student.timetable[blockWithLowestCourses]) > 0:
-//                        # currBlock = currBlock + 1      
-//                        # if(currBlock == 8):
-//                        #     currBlock = 0
-//                        continue
-//
-//                    tempBlockCourses = [wantedCourse]
-//                    for blocking in courseBlocking:
-//                        if wantedCourse in blocking:
-//                            tempBlockCourses = blocking
-//                            break
-//
-//                    # if max sections reached, break
-//                    if tempBlockCourses[0].sections >= tempBlockCourses[0].maxSections:
-//                        break
-//
-//                    # update number of sections for each course in block
-//                    for course in tempBlockCourses:
-//                        course.sections = course.sections + 1
-//                    
-//                    # otherBlock = currBlock - 4 if currBlock >= 4 else currBlock + 4
-//
-//
-//                    newBlock = Block(tempBlockCourses)
-//                    newBlock.studentList.append(student)
-//                    student.timetable[blockWithLowestCourses].append(newBlock)
-//                    globalTimetable[blockWithLowestCourses].append(newBlock)
-//                    availableClasses.append(newBlock)
-//                    # currBlock = currBlock + 1      
-//                    # if(currBlock == 8):
-//                    #     currBlock = 0
-//                    break
-//
-//                    # if tempBlockCourses[0].isLinear:
-//                    #     globalTimetable[otherBlock].append(newBlock)
-//                    #     student.timetable[otherBlock].append(newBlock)
-//
-//                
-//        return currBlock # TODO: temp
+					if (globalTimetable.get(i).get(j).getCourses().contains(requestedCourse)) {
+						if (!availableClasses.contains(globalTimetable.get(i).get(j))) {
+							continue;
+						}
+						
+						if (globalTimetable.get(i).get(j).getStudentList().size() + 1 <= globalTimetable.get(i).get(j).getMaxEnrollment()) {
+							globalTimetable.get(i).get(j).getStudentList().add(student);
+							student.getTimetable().get(i).add(globalTimetable.get(i).get(j));
+							blockFound = true;
+							break;
+						}
+						else {
+							availableClasses.remove(globalTimetable.get(i).get(j));
+						}
+					}
+				}
+				
+				if (blockFound) {
+					break;
+				}
+			}
+			
+			if (!blockFound) {
+				for (int blockWithLeastCourses : getLeastBlocks()) {
+					if (student.getTimetable().get(blockWithLeastCourses).size() > 0) {
+						currBlock++;
+						if (currBlock == 8) {
+							currBlock = 0;
+						}
+						continue;
+					}
+					
+		            ArrayList<Course> tempBlockCourses = new ArrayList<Course>();
+		            tempBlockCourses.add(requestedCourse);
+		            for (ArrayList<Course> blocking : blockings) {
+		            	if (blocking.contains(requestedCourse)) {
+		            		tempBlockCourses = blocking;
+		            		break;
+		            	}
+		            }
+		            
+		            if (tempBlockCourses.get(0).getSections() >= tempBlockCourses.get(0).getMaxSections()) {
+		            	break;
+		            }
+		            
+		            for (Course course : tempBlockCourses) {
+		            	course.setSections(course.getSections() + 1);
+		            }
+		            
+		            CourseSection newCourseSection = new CourseSection(tempBlockCourses);
+		            newCourseSection.getStudentList().add(student);
+		            student.getTimetable().get(blockWithLeastCourses).add(newCourseSection);
+		            globalTimetable.get(blockWithLeastCourses).add(newCourseSection);
+		            availableClasses.add(newCourseSection);
+				}
+			}
+		}
+		
+		return currBlock;
+	}
+
 	
 	// Process Course Information from the CSV file
 	public static void processCourses(String csvFilePath, ArrayList<Course> classes, ArrayList<Course> linearCourses, String[] outsideTheTimetable) {
