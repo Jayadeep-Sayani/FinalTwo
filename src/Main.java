@@ -274,10 +274,12 @@ public class Main {
 		for (Course requestedCourse : requestedCourses) {
 			boolean blockFound = false;
 			
-			for (int i = 0; i < 9; i++) {
+			for (int i = 0; i < 8; i++) {
+				
 				if (student.getTimetable().get(i).size() > 0) {
 					continue;
 				}
+				
 				for (int j = 0; j < globalTimetable.get(i).size(); j++) {
 
 					if (globalTimetable.get(i).get(j).getCourses().contains(requestedCourse)) {
@@ -303,12 +305,8 @@ public class Main {
 			}
 			
 			if (!blockFound) {
-				for (int blockWithLeastCourses : getLeastBlocks()) {
+				for (int blockWithLeastCourses : getLeastBlocks(globalTimetable)) {
 					if (student.getTimetable().get(blockWithLeastCourses).size() > 0) {
-						currBlock++;
-						if (currBlock == 8) {
-							currBlock = 0;
-						}
 						continue;
 					}
 					
@@ -334,6 +332,8 @@ public class Main {
 		            student.getTimetable().get(blockWithLeastCourses).add(newCourseSection);
 		            globalTimetable.get(blockWithLeastCourses).add(newCourseSection);
 		            availableClasses.add(newCourseSection);
+		            
+		            break;
 				}
 			}
 		}
@@ -466,6 +466,23 @@ public class Main {
         } // for
         return student;
     } // getStudent
+	
+	// gets 
+	public static ArrayList<Integer> getLeastBlocks(ArrayList<ArrayList<CourseSection>> globalTimetable) {
+		ArrayList<Integer> lengths = new ArrayList<Integer>();
+		int x = 0;
+		
+		while(lengths.size() < 8) {
+			for (int i = 0; i < 8; i++) {
+				if (globalTimetable.get(i).size() == x) {
+					lengths.add(i);
+				}
+			}
+			x++;
+		}
+		
+		return lengths;
+	} // getLeastBlocks
 	
 	public static void processSequences(ArrayList<Course> classes, HashMap<Course, ArrayList<Course>> sequencing) {
 		String csvFile = "data/Course Sequencing Rules.csv";
