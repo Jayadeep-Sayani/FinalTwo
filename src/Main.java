@@ -620,6 +620,76 @@ public class Main {
 		} // for
 		return student;
 	} // getStudent
+	
+	public static ArrayList<Double> getMetrics(ArrayList<Person> students) {
+		ArrayList<Double> stats = new ArrayList<Double>();
+		
+		int numStudents = 0;
+		int numCourseRequests = 0;
+		int numRequestsPlaced = 0;
+		
+		int numEightRequests = 0;
+		int numEightOutOfEight = 0;
+		int numEightOutOfEightWithAlts = 0;
+		
+		int numOneOrTwoSpares = 0;
+		int numThreeToEightSpares = 0;
+		
+		for (Person student : students) {
+			numStudents++;
+			
+			int numRequests = student.getMainRequests().size();
+			int numMainPlaced = 0;
+			int numMainOrAltPlaced = 0;
+			int numSpares = 0;
+			
+			for (List<CourseSection> block : student.getTimetable()) {
+				if (block.size() == 0) {
+					numSpares++;
+				}
+				outerloop:
+				for (CourseSection subBlock : block) {
+					for (Course course : subBlock.getCourses()) {
+						if (student.getMainRequests().contains(course)) {
+							numMainPlaced++;
+							numMainOrAltPlaced++;
+							break outerloop;
+						} else if (student.getAltRequests().contains(course)) {
+							numMainOrAltPlaced++;
+							break outerloop;
+						}
+						
+					}
+				}
+			}
+			numCourseRequests += numRequests;
+			numRequestsPlaced += numMainPlaced;
+			
+			if (numRequests == 8) {
+				numEightRequests++;
+				if (numMainPlaced == 8) {
+					numEightOutOfEight++;
+					numEightOutOfEightWithAlts++;
+				}
+				if (numMainOrAltPlaced == 8) {
+					numEightOutOfEightWithAlts++;
+				}
+			}
+			
+			if (numSpares == 1 || numSpares == 2) {
+				numOneOrTwoSpares++;
+			} else if (numSpares > 2) {
+				numThreeToEightSpares++;
+			}
+		}
+		
+		stats.add((double) numRequestsPlaced / numCourseRequests);
+		stats.add((double) numEightOutOfEight / numEightRequests);
+		stats.add((double) numEightOutOfEightWithAlts / numEightRequests);
+		stats.add((double) numOneOrTwoSpares / numStudents);
+		stats.add((double) numThreeToEightSpares / numStudents);
+		return stats;
+	}
 
 	public static void processSequences(ArrayList<Course> classes, HashMap<Course, ArrayList<Course>> sequencing) {
 		String csvFile = "data/Course Sequencing Rules.csv";
